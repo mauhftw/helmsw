@@ -7,7 +7,6 @@ A tool for switch between different version of helm written in go
 ## TODO
 - Manage dynamic helm/ directories --> version 0.2.0
 - Implement command arguments (cobra) --> version 0.2.0
-- Add progress bar when downloading a new version
 - Fix comments
 - Fix variables names and remove constants
 - Add/Fix log messages

@@ -1,14 +1,3 @@
-// TODO: Manage dynamic helm/ directories -> version 0.2.0
-// TODO: Implement command arguments (cobra) -> version 0.2.0
-//----------------------------------------------------------------
-// TODO: Add progress bar
-// TODO: Fix comments
-// TODO: Fix variables names and remove constants
-// TODO: Add/Fix log messages
-// TODO: Implement dependency manager
-// TODO: Add README
-// TODO: Fix project path
-// TODO: Add makefile
 package main
 
 import (
