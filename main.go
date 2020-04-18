@@ -40,10 +40,20 @@ func main() {
 	sort.Sort(sort.Reverse(sort.StringSlice(githubReleases)))
 	output = append(output, githubReleases...)
 
-	//Hightlight installed version
-	output, err = lib.HighlightSelectedRelease(output, HELM_BINS)
-	if err != nil {
-		log.Error(err)
+	// TODO: Make a function to check version set
+	ls := &lib.BashCmd{
+		Cmd:      "ls",
+		Args:     []string{"helm"},
+		ExecPath: HELM_BINS,
+	}
+	_, err = lib.ExecBashCmd(ls)
+
+	if err == nil {
+		//Hightlight installed version
+		output, err = lib.HighlightSelectedRelease(output, HELM_BINS)
+		if err != nil {
+			log.Error(err)
+		}
 	}
 
 	// Display interactive menu
