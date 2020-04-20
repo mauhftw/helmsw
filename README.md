@@ -8,8 +8,6 @@ A tool for switch between different version of helm written in go
 - Manage dynamic helm/ directories --> version 0.2.0
 - Implement command arguments (cobra) --> version 0.2.0
 - Fix readme
-- Fix Makefile
-- Fix project path
 
 ## Description
 

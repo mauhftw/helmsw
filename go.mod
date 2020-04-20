@@ -7,5 +7,4 @@ require (
 	github.com/logrusorgru/aurora v0.0.0-20200102142835-e9ef32dff381
 	github.com/manifoldco/promptui v0.7.0
 	github.com/sirupsen/logrus v1.5.0
-	gopkg.in/VividCortex/ewma.v1 v1.1.1 // indirect
 )
