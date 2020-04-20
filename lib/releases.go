@@ -193,8 +193,7 @@ func HighlightSelectedRelease(output []string, HELM_BINS string) ([]string, erro
 	// TODO: Optimize parsing
 	readLinkToSlice := []string{}
 	readLinkToSlice = strings.Split(out, "\n")
-	readLinkToSlice = strings.Split(readLinkToSlice[0], "/")
-	readLinkToSlice = strings.SplitN(readLinkToSlice[3], "-", 2)
+	readLinkToSlice = strings.SplitN(readLinkToSlice[0], "-", 2)
 
 	// Put label on selected helm release
 	currentVersion := fmt.Sprintf("%-15s %s", readLinkToSlice[1], installed)

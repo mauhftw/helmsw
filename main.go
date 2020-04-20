@@ -10,11 +10,34 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// TODO: Check if the dir exists
-const HELM_VERSIONS = "/tmp/.helm.versions"
-const HELM_BINS = "/tmp/helm"
+// var (
+// 	HELM_ROOT     = os.Getenv("HOME") + ".helmsw"
+// 	HELM_VERSIONS = HELM_ROOT + "/versions"
+// 	HELM_BINS     = HELM_ROOT + "/bin"
+// )
+
+// Set helm root directory
+var helmRoot = os.Getenv("HOME")
+
+// Helm struct defines directory tree
+type Helm struct {
+	Version string
+	Bin     string
+}
 
 func main() {
+
+	// Instance helm directory struct
+	helm := &Helm{
+		Version: helmRoot + "/versions",
+		Bin:     helmRoot + "/bin",
+	}
+
+	// Check helmsw local dir
+	err := lib.CheckHelmswDir(HELM_VERSIONS, HELM_BINS)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Check helm releases on github
 	url := "https://api.github.com/repos/helm/helm/releases"
@@ -49,7 +72,7 @@ func main() {
 	_, err = lib.ExecBashCmd(ls)
 
 	if err == nil {
-		//Hightlight installed version
+		// Hightlight installed version
 		output, err = lib.HighlightSelectedRelease(output, HELM_BINS)
 		if err != nil {
 			log.Error(err)
