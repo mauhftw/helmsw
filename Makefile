@@ -10,7 +10,6 @@ GOGET=$(GOCMD) get
 setup:
 	@echo "Installing dependencies..."
 	@$(GOGET) -u github.com/alecthomas/gometalinter
-	@$(GOGET) -u github.com/golang/dep/cmd/dep
 	gometalinter --install --update
 	@$(MAKE) dep
 

@@ -31,14 +31,14 @@ func main() {
 	// Check helmsw local dir
 	err := lib.CheckHelmswDir(helmswPath.Version, helmswPath.Bin)
 	if err != nil {
-		log.Fatalf("Error when trying to create helmsw dir: %v", err)
+		log.Fatalf("Trying to create helmsw dir: %v", err)
 	}
 
 	// Check helm releases on github
 	url := "https://api.github.com/repos/helm/helm/releases"
 	githubReleases, err := lib.CheckOnlineReleases(url)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Trying to install check github releases: %v\n", err)
 	}
 
 	output := []string{}
@@ -46,7 +46,7 @@ func main() {
 	// Check local helm releases
 	localReleases, err := lib.CheckLocalReleases(helmswPath.Version)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Trying to check local releases: %v\n", err)
 	}
 
 	// Check if there are helm releases installed
@@ -54,7 +54,7 @@ func main() {
 		output = lib.LabelInstalledReleases(localReleases, githubReleases, output)
 	}
 
-	// Merge installed and internet helm releases
+	// Merge installed and github helm releases lists
 	sort.Sort(sort.Reverse(sort.StringSlice(githubReleases)))
 	output = append(output, githubReleases...)
 
@@ -70,16 +70,14 @@ func main() {
 		// Hightlight installed version
 		output, err = lib.HighlightSelectedRelease(output, helmswPath.Bin)
 		if err != nil {
-			log.Error(err)
+			log.Fatalf("Trying to install a tag the selected release: %v\n", err)
 		}
 	}
 
 	// Display interactive menu
-	version, result, msg, err := lib.DisplayMenu(output)
+	version, result, err := lib.DisplayMenu(output)
 	if err != nil {
-		log.Fatal(err)
-	} else {
-		log.Info(msg)
+		log.Errorf("Prompt failed: %v\n", err)
 	}
 
 	// Checks if selected helm release exists locally
@@ -87,11 +85,13 @@ func main() {
 	if _, err := os.Stat(bin); os.IsNotExist(err) {
 
 		// Install a new Helm release
-		log.Infof("%s is not installed in your system", bin)
+		log.Infof("%s is not present in your system\n", version)
+		log.Infof("Installing helm release %s...\n", version)
 		err := lib.InstallRelease(result, bin, helmswPath.Version)
 		if err != nil {
-			log.Error(err)
+			log.Fatalf("Trying to install a new release: %v\n", err)
 		}
+		log.Infof("Helm release %s has been installed successfully!\n", version)
 
 		// Helm release is already installed
 	} else {
@@ -99,7 +99,8 @@ func main() {
 		// Switch Helm release
 		err = lib.SwitchRelease(version, helmswPath.Bin, helmswPath.Version)
 		if err != nil {
-			log.Error(err)
+			log.Fatalf("Trying to switch release: %v", err)
 		}
+		log.Infof("Switched to %s\n", version)
 	}
 }
