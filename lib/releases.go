@@ -51,13 +51,13 @@ func CheckOnlineReleases(url string) ([]string, error) {
 }
 
 // CheckLocalReleases check local helm releases
-func CheckLocalReleases(HELM_VERSIONS string) (string, error) {
+func CheckLocalReleases(helmVersionPath string) (string, error) {
 
 	// List installed helm releases
 	ls := &BashCmd{
 		Cmd:      "ls",
 		Args:     []string{"-1"},
-		ExecPath: HELM_VERSIONS,
+		ExecPath: helmVersionPath,
 	}
 	localReleases, err := ExecBashCmd(ls)
 	if err != nil {
@@ -96,7 +96,7 @@ func LabelInstalledReleases(localReleases string, githubReleases []string, outpu
 // TODO: Check Architecture (x86,x64) for building up the link
 // TODO: Check if destination dir exists
 // TODO: Change CONSTANTS by argument variables, should be passed to the functions
-func InstallRelease(result string, bin string, HELM_VERSIONS string) error {
+func InstallRelease(result string, bin string, helmVersionPath string) error {
 
 	// Check OS
 	uname := &BashCmd{
@@ -115,7 +115,7 @@ func InstallRelease(result string, bin string, HELM_VERSIONS string) error {
 	osType := strings.ToLower(fmt.Sprintf("%s-amd64", unameToSlice[0]))
 
 	// Download file
-	path := fmt.Sprintf("%s/helm-%s", HELM_VERSIONS, result)
+	path := fmt.Sprintf("%s/helm-%s", helmVersionPath, result)
 	err = DownloadFile(result, path, osType)
 	if err != nil {
 		return err
@@ -127,7 +127,7 @@ func InstallRelease(result string, bin string, HELM_VERSIONS string) error {
 	tar := &BashCmd{
 		Cmd:      "tar",
 		Args:     []string{"zxvf", bin, v, "--strip-components=1"},
-		ExecPath: HELM_VERSIONS,
+		ExecPath: helmVersionPath,
 	}
 	_, err = ExecBashCmd(tar)
 	if err != nil {
@@ -139,7 +139,7 @@ func InstallRelease(result string, bin string, HELM_VERSIONS string) error {
 	mv := &BashCmd{
 		Cmd:      "mv",
 		Args:     []string{"helm", helm},
-		ExecPath: HELM_VERSIONS,
+		ExecPath: helmVersionPath,
 	}
 	_, err = ExecBashCmd(mv)
 	if err != nil {
@@ -150,13 +150,13 @@ func InstallRelease(result string, bin string, HELM_VERSIONS string) error {
 }
 
 // SwitchRelease switches between helm releases
-func SwitchRelease(binToSlice string, HELM_BINS string, HELM_VERSIONS string) error {
+func SwitchRelease(binToSlice string, helmBinPath string, helmVersionPath string) error {
 
 	// Delete actual symlink
 	rmLn := &BashCmd{
 		Cmd:      "find",
 		Args:     []string{"-L", ".", "-xtype", "l", "-delete"},
-		ExecPath: HELM_BINS,
+		ExecPath: helmBinPath,
 	}
 	_, err := ExecBashCmd(rmLn)
 	if err != nil {
@@ -166,7 +166,7 @@ func SwitchRelease(binToSlice string, HELM_BINS string, HELM_VERSIONS string) er
 	// Create symlink to helm new version
 	ln := &BashCmd{
 		Cmd:  "ln",
-		Args: []string{"-s", fmt.Sprintf("%s/helm-%s", HELM_VERSIONS, binToSlice), fmt.Sprintf("%s/helm", HELM_BINS)},
+		Args: []string{"-s", fmt.Sprintf("%s/helm-%s", helmVersionPath, binToSlice), fmt.Sprintf("%s/helm", helmBinPath)},
 	}
 	_, err = ExecBashCmd(ln)
 	if err != nil {
@@ -176,13 +176,13 @@ func SwitchRelease(binToSlice string, HELM_BINS string, HELM_VERSIONS string) er
 }
 
 // HighlightSelectedRelease labels the selected helm version to be used
-func HighlightSelectedRelease(output []string, HELM_BINS string) ([]string, error) {
+func HighlightSelectedRelease(output []string, helmBinPath string) ([]string, error) {
 
 	// Print value from a symlink
 	readLink := &BashCmd{
 		Cmd:      "readlink",
 		Args:     []string{"-f", "helm"},
-		ExecPath: HELM_BINS,
+		ExecPath: helmBinPath,
 	}
 	out, err := ExecBashCmd(readLink)
 	if err != nil {

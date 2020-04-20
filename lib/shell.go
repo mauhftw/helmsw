@@ -5,6 +5,7 @@ import (
 	"os/exec"
 )
 
+// BashCmd defines the command, argunments and the path to execute the desired command
 type BashCmd struct {
 	Cmd      string
 	Args     []string
@@ -32,10 +33,10 @@ func ExecBashCmd(c *BashCmd) (string, error) {
 }
 
 // CheckHelmswDir check the existence the helmsw installation dir
-func CheckHelmswDir(HELM_VERSIONS string, HELM_BINS string) error {
+func CheckHelmswDir(helmVersionPath string, helmBinPath string) error {
 
 	dirs := []string{}
-	dirs = append(dirs, HELM_VERSIONS, HELM_BINS)
+	dirs = append(dirs, helmVersionPath, helmBinPath)
 
 	// Checks if helmsw dir exists
 	for _, dir := range dirs {
