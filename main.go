@@ -5,7 +5,7 @@ import (
 	"os"
 	"sort"
 
-	lib "helmsw/lib"
+	lib "github.com/mauhftw/helmsw/lib"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -77,7 +77,7 @@ func main() {
 	// Display interactive menu
 	version, result, err := lib.DisplayMenu(output)
 	if err != nil {
-		log.Errorf("Prompt failed: %v\n", err)
+		log.Fatalf("Prompt failed: %v\n", err)
 	}
 
 	// Checks if selected helm release exists locally
@@ -85,8 +85,8 @@ func main() {
 	if _, err := os.Stat(bin); os.IsNotExist(err) {
 
 		// Install a new Helm release
-		log.Infof("%s is not present in your system\n", version)
-		log.Infof("Installing helm release %s...\n", version)
+		log.Infof("Release %s is not present in your system\n", version)
+		log.Infof("Attempting to install helm release %s...\n", version)
 		err := lib.InstallRelease(result, bin, helmswPath.Version)
 		if err != nil {
 			log.Fatalf("Trying to install a new release: %v\n", err)
