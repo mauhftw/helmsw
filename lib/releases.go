@@ -157,7 +157,8 @@ func InstallRelease(result string, bin string, helmVersionPath string) error {
 // DownloadRelease Downloads the selected helm release
 func DownloadRelease(result string, path string, osType string) error {
 
-	// Create the destination file
+	// TODO: Figure out why we can download in a temporal folder and then move that file
+	// Create the download file
 	destination, err := os.Create(path)
 	if err != nil {
 		return err
@@ -166,18 +167,20 @@ func DownloadRelease(result string, path string, osType string) error {
 	defer destination.Close()
 
 	// Perform request to get helm releases
-	// TODO: Replace URL by variable
-	// TODO: Performs if response is != 200
-	helm := fmt.Sprintf("https://get.helm.sh/helm-%s-%s.tar.gz", result, osType)
+	url := "https://get.helm.sh/"
+	helm := fmt.Sprintf("%shelm-%s-%s.tar.gz", url, result, osType)
 	resp, err := http.Get(helm)
 	if err != nil {
+		return err
+	}
+	if resp.StatusCode != 200 {
+		err := errors.New(string(fmt.Sprintf("Trying to download from %s", url)))
 		return err
 	}
 
 	defer resp.Body.Close()
 
 	// Set progress bar
-	// TODO: Check errors. Read documentation
 	var progressBar *pb.ProgressBar
 	contentLength, err := strconv.Atoi(resp.Header.Get("Content-Length"))
 	if err != nil {
@@ -201,7 +204,6 @@ func DownloadRelease(result string, path string, osType string) error {
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
