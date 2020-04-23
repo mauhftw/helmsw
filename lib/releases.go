@@ -26,6 +26,7 @@ type Version struct {
 var (
 	installed = color.Yellow("* Installed").Bold()
 	selected  = color.Green("* Selected").Bold()
+	tmpPath   = "/tmp"
 )
 
 // CheckOnlineReleases check helm's latest releases on github
@@ -120,8 +121,8 @@ func InstallRelease(result string, bin string, helmVersionPath string) error {
 	osType := strings.ToLower(fmt.Sprintf("%s-amd64", unameToSlice[0]))
 
 	// Download file
-	path := fmt.Sprintf("%s/helm-%s", helmVersionPath, result)
-	err = DownloadRelease(result, path, osType)
+	destinationPath := fmt.Sprintf("%s/helm-%s", helmVersionPath, result)
+	err = DownloadRelease(result, osType)
 	if err != nil {
 		return err
 	}
@@ -132,7 +133,7 @@ func InstallRelease(result string, bin string, helmVersionPath string) error {
 	tar := &BashCmd{
 		Cmd:      "tar",
 		Args:     []string{"zxvf", bin, v, "--strip-components=1"},
-		ExecPath: helmVersionPath,
+		ExecPath: tmpPath,
 	}
 	_, err = ExecBashCmd(tar)
 	if err != nil {
@@ -140,11 +141,10 @@ func InstallRelease(result string, bin string, helmVersionPath string) error {
 	}
 
 	// Rename helm release to specific version
-	helm := fmt.Sprintf("helm-%s", result)
 	mv := &BashCmd{
 		Cmd:      "mv",
-		Args:     []string{"helm", helm},
-		ExecPath: helmVersionPath,
+		Args:     []string{"helm", destinationPath},
+		ExecPath: tmpPath,
 	}
 	_, err = ExecBashCmd(mv)
 	if err != nil {
@@ -155,16 +155,17 @@ func InstallRelease(result string, bin string, helmVersionPath string) error {
 }
 
 // DownloadRelease Downloads the selected helm release
-func DownloadRelease(result string, path string, osType string) error {
+func DownloadRelease(result string, osType string) error {
 
 	// TODO: Figure out why we can download in a temporal folder and then move that file
 	// Create the download file
-	destination, err := os.Create(path)
+	temporalPath := fmt.Sprintf("%s/helm-%s", tmpPath, result)
+	tmpFile, err := os.Create(temporalPath)
 	if err != nil {
 		return err
 	}
 
-	defer destination.Close()
+	defer tmpFile.Close()
 
 	// Perform request to get helm releases
 	url := "https://get.helm.sh/"
@@ -188,7 +189,6 @@ func DownloadRelease(result string, path string, osType string) error {
 	} else {
 		progressBar = pb.New(int(contentLength))
 	}
-	defer progressBar.Finish()
 
 	// Set progress bar settings
 	// TOOD: Use writers to log into logrus
@@ -199,11 +199,13 @@ func DownloadRelease(result string, path string, osType string) error {
 	progressBar.Start()
 
 	// Create Writer and read data transfered
-	writer := io.MultiWriter(destination, progressBar)
+	writer := io.MultiWriter(tmpFile, progressBar)
 	_, err = io.Copy(writer, resp.Body)
 	if err != nil {
 		return err
 	}
+	progressBar.Finish()
+
 	return nil
 }
 
