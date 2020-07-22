@@ -1,6 +1,6 @@
 # helmsw
 
-A tool for switch between different version of helm written in go
+A tool for switching between different versions of helm. written in go
 
 # WIP
 
